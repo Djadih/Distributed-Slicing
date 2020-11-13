@@ -1,5 +1,10 @@
+import java.util.ArrayList;
 import java.util.Set;
 
 public class Node {
-    private Set<Event> events;
+    Set<Event> events;
+
+    public Node(Set<Event> events) {
+        this.events = events;
+    }
 }
