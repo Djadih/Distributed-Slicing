@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConsistentCut {
     ArrayList<ArrayList<Event>> events; // nodes[0] = the events from process 0 that are included in this cut.
@@ -135,5 +137,16 @@ public class ConsistentCut {
             // ascending order
             return c1Size - c2Size;
         }};
+
+    public Node toNode() {
+        Set<Event> eventsInSet = new HashSet<>();
+        for (int i = 0; i < events.size(); ++i) {
+            for (int j = 0; j < events.get(i).size(); ++j) {
+                eventsInSet.add(events.get(i).get(j));
+            }
+        }
+
+        return new Node(eventsInSet);
+    }
 
 }

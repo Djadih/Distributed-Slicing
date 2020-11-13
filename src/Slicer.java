@@ -52,19 +52,23 @@ public class Slicer {
 
 
         // 6. order C_i's according to set inclusion,
-        // 6.1. first convert C_i's into an arraylist and briefly sort them by their size
-        ArrayList<ConsistentCut> Cs = new ArrayList<>(JOfEs);
-        Collections.sort(Cs, ConsistentCut.ConsistentCutSizeComparator);
+        // 6.1 convert consistent cuts into node
+        ArrayList<Node> nodes = new ArrayList<>();
+        for (ConsistentCut c : JOfEs) {
+            nodes.add(c.toNode()); // flatten events in C, which is a 2D array, into a set of events
+        }
+
         // 6.2 create a partial order according to set inclusion
-        // TODO: think about a way to
-        //  1. order consistent cuts in Cs by set inclusion
-        //     remember, set-inclusion is only partially orderable, so we need a Poset here
-        //  2. after that, modify the Nodes in that poset so that these Nodes form a partition of (E - V).
-        //  3. return that Poset
+        Boolean[][] incidenceMatrix = new Boolean[nodes.size()][nodes.size()];
+        for (int i = 0; i < incidenceMatrix.length; ++i) {
+            for (int j = 0; j < incidenceMatrix[0].length; ++j) {
+                if (nodes.get(i).isIncludedIn(nodes.get(j))) {
+                    incidenceMatrix[i][j] = true;
+                }
+            }
+        }
 
-
-
-        // 7. strip C_i's so that
+        // 6.3. TODO: strip Node in "nodes" so that those nodes contain disjoint events
 
 
         return null;
