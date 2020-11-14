@@ -75,6 +75,7 @@ public class ConsistentCut {
 
     @Override
     public int hashCode() {
+        // TODO: need to investigate this, there will probably be a lot of collisions if we use this hash method
         return getNumberOfEvents();
     }
 
@@ -93,9 +94,7 @@ public class ConsistentCut {
         int result = 0;
         int N = events.size();
         for (int i = 0; i < N; ++i) {
-            for (int j = 0; j < events.get(i).size(); ++j) {
-                result += 1;
-            }
+            result += events.get(i).size();
         }
         return result;
     }

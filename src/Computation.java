@@ -12,9 +12,11 @@ public class Computation {
     }
 
     public int getForbiddenStateProcessNumber(ConsistentCut G, Function<ConsistentCut, Boolean> predicate) {
+        // TODO: This will likely have to be a static method, or have some memory between calls.
         // precondition: predicate(G) == false
         // predicate is a linear predicate
         // this method returns the number of the process ( [0, events.size()) ) on which the forbidden state is in.
+
         return 0;
     }
 
