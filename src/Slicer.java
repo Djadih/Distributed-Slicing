@@ -3,7 +3,7 @@ import java.util.function.Function;
 
 public class Slicer {
 
-    Slice slice(Computation computation, Function<ConsistentCut, Boolean> predicate) {
+    Slice slice(Computation computation, Predicate predicate) {
         // Precondition: predicate is a lattice-liner predicate on cuts of "computation"
 
         // 1. Compute the "smallest" consistent cut V in "computation" such that predicate(V).
@@ -64,7 +64,7 @@ public class Slicer {
 
 
     // Helper method 1: find the minimal consistent cut in "computation" that satisfies "predicate"
-    ConsistentCut smallestConsistentCut(Computation computation, Function<ConsistentCut, Boolean> predicate) {
+    ConsistentCut smallestConsistentCut(Computation computation, Predicate predicate) {
         int numOfProcesses = computation.getNumberOfProcesses();
         ConsistentCut G = new ConsistentCut(numOfProcesses);
         return smallestConsistentCutFromG(computation, predicate, G);
@@ -72,12 +72,12 @@ public class Slicer {
 
 
     // Helper method 2: find the maximal consistent cut in "computation" that satisfies "predicate"
-    ConsistentCut largestConsistentCut(Computation computation, Function<ConsistentCut, Boolean> predicate) {
+    ConsistentCut largestConsistentCut(Computation computation, Predicate predicate) {
         int numOfProcesses = computation.getNumberOfProcesses();
         ConsistentCut G = new ConsistentCut(computation.events);
 
-        while (!predicate.apply(G)) {
-            int forbiddenPID = computation.getForbiddenStateProcessNumber(G, predicate);
+        while (!predicate.predicate.apply(G)) {
+            int forbiddenPID = predicate.efficientReverseAdvancementFunction.apply(G);
             // check whether all events in "computation" from this process have been included in G
             if (G.events.get(forbiddenPID).size() == 0) {
                 return null;
@@ -90,7 +90,7 @@ public class Slicer {
     }
 
     // Helper method 3: find the minimal consistent cut in "computation" that satisfies "predicate" and also include "e"
-    ConsistentCut smallestConsistentCutIncludingEvent(Computation computation, Function<ConsistentCut, Boolean> predicate, int pid, int eventIdxInPID) {
+    ConsistentCut smallestConsistentCutIncludingEvent(Computation computation, Predicate predicate, int pid, int eventIdxInPID) {
         int numOfProcesses = computation.getNumberOfProcesses();
         ConsistentCut G = new ConsistentCut(numOfProcesses);
         // populate G with all events in pid until (and including) the desired event index
@@ -103,9 +103,9 @@ public class Slicer {
     }
 
     // Helper method 4: gets the least consistent cut including at least g that satisfies a given predicate. reduces code duplication.
-    private ConsistentCut smallestConsistentCutFromG(Computation computation, Function<ConsistentCut, Boolean> predicate, ConsistentCut g) {
-        while (!predicate.apply(g)) {
-            int forbiddenPID = computation.getForbiddenStateProcessNumber(g, predicate);
+    private ConsistentCut smallestConsistentCutFromG(Computation computation, Predicate predicate, ConsistentCut g) {
+        while (!predicate.predicate.apply(g)) {
+            int forbiddenPID = predicate.efficientAdvancementFunction.apply(g);
             // check whether all events in "computation" from this process have been included in G
             if (g.events.get(forbiddenPID).size() == computation.events.get(forbiddenPID).size()) {
                 return null;

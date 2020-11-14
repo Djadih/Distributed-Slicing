@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ConsistentCut {
+    Computation computation;
     ArrayList<ArrayList<Event>> events; // nodes[0] = the events from process 0 that are included in this cut.
 
     // used to initialize the "smallest" consistent cut of a computation, which should always be an empty set
