@@ -137,15 +137,7 @@ public class ConsistentCut {
             return c1Size - c2Size;
         }};
 
-    public Node toNode() {
-        Set<Event> eventsInSet = new HashSet<>();
-        for (int i = 0; i < events.size(); ++i) {
-            for (int j = 0; j < events.get(i).size(); ++j) {
-                eventsInSet.add(events.get(i).get(j));
-            }
-        }
 
-        return new Node(eventsInSet);
-    }
+
 
 }

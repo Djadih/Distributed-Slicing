@@ -1,17 +1,12 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 public class Slicer {
 
-
-    Computation slice(Computation computation, Function<ConsistentCut, Boolean> predicate) {
+    Slice slice(Computation computation, Function<ConsistentCut, Boolean> predicate) {
         // Precondition: predicate is a lattice-liner predicate on cuts of "computation"
 
         // 1. Compute the "smallest" consistent cut V in "computation" such that predicate(V).
-        // TODO: utilize the forbidden-state property of linear predicate to find this V by acting greedy. consult p140 of textbook
         ConsistentCut V = smallestConsistentCut(computation, predicate);
 
 
@@ -20,54 +15,50 @@ public class Slicer {
 
 
         // 3. For each event e in W-V, find the least consistent cut that satisfies B and includes e.
-        ConsistentCut WMinusV = W.difference(V);
-        Set<ConsistentCut> JOfEs = new HashSet<>();
-        for (int i = 0; i < WMinusV.events.size(); ++i) {
-            for (int j = 0; j < WMinusV.events.get(i).size(); ++j) {
+        // (note: since we override equals&hashCode for ConsistentCut, we can use a Map whose key is of
+        // type ConsistentCut to quickly "aggregate" all e's that produces the same J(e)'s into the same entry
+        // under their (same) J(e))
+        Map<ConsistentCut, Set<Event>> equivalentClasses = new HashMap<>();
+        for (int i = 0; i < W.events.size(); ++i) {
+            for (int j = V.events.get(i).size(); j < W.events.get(i).size(); ++j) {
                 // 3.1. compute the "smallest" consistent cut J(e) in "computation" such that predicate(J(e)) && e \in J(e)
-                ConsistentCut JOfE = smallestConsistentCut(computation, predicate, i, j);
-                JOfEs.add(JOfE);
+                ConsistentCut JOfE = smallestConsistentCutIncludingEvent(computation, predicate, i, j);
+                Set<Event> equivalentClass = equivalentClasses.getOrDefault(JOfE, new HashSet<>());
+                equivalentClass.add(W.events.get(i).get(j));
             }
         }
 
+        // 4. Construct nodes and a partial oder upon those nodes according to set inclusion
+        // on their corresponding J(e).
 
-        // Debugging Step: print out each J(e) and see whether they are all there should be, and whether they're distinct
-        int cntxx = 0;
-        for (ConsistentCut JOfE : JOfEs) {
-            System.out.println("J(e) #" + cntxx + " : " + JOfE);
+        // 4.1 Convert the Map into a (flattened) array of (J(e), equivalent events) pairs.
+        ArrayList<Map.Entry<ConsistentCut, Set<Event>>> arrayOfPairs = new ArrayList<>();
+        for (Map.Entry<ConsistentCut, Set<Event>> entry : equivalentClasses.entrySet()) {
+            arrayOfPairs.add(entry);
         }
 
-        // 4. Form equivalence classes based on all the least consistent cuts for each event.
+        // 4.1. fill in "nodes" and "incidenceMatrix"
+        int m = equivalentClasses.size();
+        Node[] nodes = new Node[m];
+        boolean[][] incidenceMatric = new boolean[m][m];
 
-        // Cs stores equivalent classes where each C_i is a distinct consistent cut. Let size(distinct_J_es) = m
-
-
-        // need to order C_i's according to set inclusion,
-        ArrayList<Node> events = new ArrayList<>();
-        for (ConsistentCut c : JOfEs) {
-            events.add(c.toNode()); // flatten events in C, which is a 2D array of process:events, into just a set of events
+        for (int i = 0; i < m; ++i) {
+            // each node is nothing but a set of equivalent events
+            nodes[i] = new Node(arrayOfPairs.get(i).getValue());
         }
 
-        // 4.1 create a partial order of events according to J(e) inclusion
-//        Boolean[][] incidenceMatrix = new Boolean[events.size()][events.size()];
-
-        Graph graph = new Graph(events.size());
-
-        for (int i = 0; i < events.size(); ++i) {
-            for (int j = 0; j < events.size(); ++j) {
-                if (events.get(i).isIncludedIn(events.get(j))) {
-                    graph.addEdge(i, j);
-//                    incidenceMatrix[i][j] = true;
+        // node[i] ->_B node[j] iff the J(e) for (any) e in node[i] is set-included in J(e) for (any) e in node[j]
+        for (int i = 0; i < m; ++i) {
+            for (int j = 0; j < m; ++j) {
+                ConsistentCut j1 = arrayOfPairs.get(i).getKey();
+                ConsistentCut j2 = arrayOfPairs.get(j).getKey();
+                if (j1.isIncludedIn(j2)) {
+                    incidenceMatric[i][j] = true;
                 }
             }
         }
 
-        // 4.2 equivalence classes are composed of sets of strongly connected components
-        // find all the strongly connected components, and return them as equivalence classes
-        // but the order of the equivalence classes matters
-        ArrayList<ArrayList<Integer>> SCCs = graph.retrieveSCCs();
-
-        return null;
+        return new Slice(computation, predicate, V, nodes, incidenceMatric);
     }
 
 
@@ -76,7 +67,7 @@ public class Slicer {
     ConsistentCut smallestConsistentCut(Computation computation, Function<ConsistentCut, Boolean> predicate) {
         int numOfProcesses = computation.getNumberOfProcesses();
         ConsistentCut G = new ConsistentCut(numOfProcesses);
-        return getConsistentCut(computation, predicate, G);
+        return smallestConsistentCutFromG(computation, predicate, G);
     }
 
 
@@ -99,7 +90,7 @@ public class Slicer {
     }
 
     // Helper method 3: find the minimal consistent cut in "computation" that satisfies "predicate" and also include "e"
-    ConsistentCut smallestConsistentCut(Computation computation, Function<ConsistentCut, Boolean> predicate, int pid, int eventIdxInPID) {
+    ConsistentCut smallestConsistentCutIncludingEvent(Computation computation, Function<ConsistentCut, Boolean> predicate, int pid, int eventIdxInPID) {
         int numOfProcesses = computation.getNumberOfProcesses();
         ConsistentCut G = new ConsistentCut(numOfProcesses);
         // populate G with all events in pid until (and including) the desired event index
@@ -108,11 +99,11 @@ public class Slicer {
             G.events.get(pid).add(eventToAdd);
         }
 
-        return getConsistentCut(computation, predicate, G);
+        return smallestConsistentCutFromG(computation, predicate, G);
     }
 
     // Helper method 4: gets the least consistent cut including at least g that satisfies a given predicate. reduces code duplication.
-    private ConsistentCut getConsistentCut(Computation computation, Function<ConsistentCut, Boolean> predicate, ConsistentCut g) {
+    private ConsistentCut smallestConsistentCutFromG(Computation computation, Function<ConsistentCut, Boolean> predicate, ConsistentCut g) {
         while (!predicate.apply(g)) {
             int forbiddenPID = computation.getForbiddenStateProcessNumber(g, predicate);
             // check whether all events in "computation" from this process have been included in G
