@@ -7,7 +7,24 @@ public class Computation {
 
     Map<Event, Event> messages; // messages is a map from key=sendEvent to value=receiveEvent
 
+    public Computation(ArrayList<ArrayList<Event>> events, Map<Event, Event> messages){
+        this.events = events;
+        this.messages = messages;
+    }
+
     public int getNumberOfProcesses() {
         return events.size();
+    }
+
+    public int getTotalNumberOfEvents(){
+        int eventNum = 0;
+
+        for (int i = 0; i < events.size(); i++){
+            for (int j = 0; j < events.get(i).size(); j++){
+                eventNum++;
+            }
+        }
+
+        return eventNum;
     }
 }

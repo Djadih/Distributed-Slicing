@@ -4,21 +4,28 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ConsistentCut {
-    Computation computation;
+    // TODO: this should be standardized to use the new computation class, rather than events
     ArrayList<ArrayList<Event>> events; // nodes[0] = the events from process 0 that are included in this cut.
+    Computation computation;
 
     // used to initialize the "smallest" consistent cut of a computation, which should always be an empty set
-    public ConsistentCut(int N) {
-        events = new ArrayList<>(N);
+    public ConsistentCut(int N, Computation computation) {
+        this.events = new ArrayList<>(N);
         for (int i = 0; i < N; ++i) {
-            events.set(i, new ArrayList<>());
+            events.add(new ArrayList<>());
         }
+        this.computation = computation;
+    }
+
+    public ConsistentCut(Computation computation){
+        this.computation = computation;
+        this.events = computation.events;
     }
 
     // Used to initialize the "largest" consistent cut of a computation.
-    public ConsistentCut(ArrayList<ArrayList<Event>> events) {
-        this.events = events;
-    }
+//    public ConsistentCut(ArrayList<ArrayList<Event>> events) {
+//        this.events = events;
+//    }
 
 
     public ConsistentCut difference(ConsistentCut V) {
@@ -31,7 +38,7 @@ public class ConsistentCut {
 
         // for P_i, add the events that are in Cut 'this' but not in cut V.
         int N = events.size();
-        ConsistentCut result = new ConsistentCut(N);
+        ConsistentCut result = new ConsistentCut(N, V.computation);
         for (int i = 0; i < N; ++i) {
             int sizeDifference = events.get(i).size() - V.events.get(i).size();
             int startIndex = V.events.get(i).size();
@@ -127,6 +134,16 @@ public class ConsistentCut {
         return true;
     }
 
+    public boolean includes(Event event){
+        for (int i = 0; i < events.size(); i++){
+            for (int j = 0; j < events.get(i).size(); j++){
+                if (event.identifier.equals(events.get(i).get(j).identifier))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     /*Comparator for sorting the ConsistentCut by consistent cut size (i.e. number of events)*/
     public static Comparator<ConsistentCut> ConsistentCutSizeComparator = new Comparator<ConsistentCut>() {
 
@@ -137,7 +154,6 @@ public class ConsistentCut {
             // ascending order
             return c1Size - c2Size;
         }};
-
 
 
 

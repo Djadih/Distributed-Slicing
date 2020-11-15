@@ -1,10 +1,12 @@
 
 public class Event {
     public String identifier; // an identifier for each Event. Should be global unique
+    public int pid;
 
 
-    public Event(String identifier) {
+    public Event(String identifier, int pid) {
         this.identifier = identifier;
+        this.pid = pid;
     }
 
 

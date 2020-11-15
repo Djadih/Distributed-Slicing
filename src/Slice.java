@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -18,5 +19,16 @@ public class Slice {
         this.V = V;
         this.nodes = nodes;
         this.incidenceMatrix = incidenceMatrix;
+    }
+
+    @Override
+    public String toString() {
+        return "Slice{" +
+                "computation=" + computation +
+                ", predicate=" + predicate +
+                ", V=" + V +
+                ", nodes=" + Arrays.toString(nodes) +
+                ", incidenceMatrix=" + Arrays.toString(incidenceMatrix) +
+                '}';
     }
 }
