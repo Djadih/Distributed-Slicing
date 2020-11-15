@@ -22,11 +22,16 @@ public class Event {
 
         Event rhs = (Event) obj;
 
-        return this.identifier.equals(rhs.identifier);
+        return this.identifier.equals(rhs.identifier) && this.pid == rhs.pid;
     }
 
     @Override
     public int hashCode() {
         return identifier.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + pid + ", " + identifier + ")";
     }
 }

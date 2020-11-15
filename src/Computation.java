@@ -27,4 +27,15 @@ public class Computation {
 
         return eventNum;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < events.size(); ++i) {
+            for (int j = 0; j < events.get(i).size(); ++j) {
+                sb.append(events.get(i).get(j) + (j == events.get(i).size() - 1 ? "\n" : " -> "));
+            }
+        }
+        return sb.toString();
+    }
 }

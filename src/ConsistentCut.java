@@ -10,7 +10,7 @@ public class ConsistentCut {
 
     // used to initialize the "smallest" consistent cut of a computation, which should always be an empty set
     public ConsistentCut(int N, Computation computation) {
-        this.events = new ArrayList<>(N);
+        this.events = new ArrayList<>();
         for (int i = 0; i < N; ++i) {
             events.add(new ArrayList<>());
         }
@@ -27,27 +27,6 @@ public class ConsistentCut {
 //        this.events = events;
 //    }
 
-
-    public ConsistentCut difference(ConsistentCut V) {
-        // return a cut that consists of events from this.events - rhsCut.events
-
-        // precondition: number Of processes in events == number of processes in rhs.events
-        if (events.size() != V.events.size()) {
-            throw new IllegalArgumentException();
-        }
-
-        // for P_i, add the events that are in Cut 'this' but not in cut V.
-        int N = events.size();
-        ConsistentCut result = new ConsistentCut(N, V.computation);
-        for (int i = 0; i < N; ++i) {
-            int sizeDifference = events.get(i).size() - V.events.get(i).size();
-            int startIndex = V.events.get(i).size();
-            for (int j = startIndex; j < events.get(i).size(); ++j) {
-                result.events.get(i).add(events.get(i).get(j));
-            }
-        }
-        return result;
-    }
 
     @Override
     public boolean equals(Object obj) {

@@ -1,14 +1,8 @@
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.lang.module.FindException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class testSlicer {
 

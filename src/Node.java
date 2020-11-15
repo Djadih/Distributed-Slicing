@@ -7,4 +7,9 @@ public class Node {
     public Node(Set<Event> events) {
         this.events = events;
     }
+
+    @Override
+    public String toString() {
+        return events.toString();
+    }
 }
