@@ -1,32 +1,93 @@
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
 public class ConsistentCut {
-    // TODO: this should be standardized to use the new computation class, rather than events
-    ArrayList<ArrayList<Event>> events; // nodes[0] = the events from process 0 that are included in this cut.
+    private ArrayList<ArrayList<Event>> events; // nodes[0] = the events from process 0 that are included in this cut.
     Computation computation;
 
     // used to initialize the "smallest" consistent cut of a computation, which should always be an empty set
-    public ConsistentCut(int N, Computation computation) {
-        this.events = new ArrayList<>();
-        for (int i = 0; i < N; ++i) {
-            events.add(new ArrayList<>());
+    // this constructor will create N processes
+    public ConsistentCut(Computation computation, boolean empty) {
+        if (empty) {
+            this.events = new ArrayList<>();
+            for (int i = 0; i < computation.getNumberOfProcesses(); ++i) {
+                events.add(new ArrayList<>());
+            }
+        }
+        else{
+            this.events = computation.events;
         }
         this.computation = computation;
     }
 
     public ConsistentCut(Computation computation){
-        this.computation = computation;
-        this.events = computation.events;
+        this(computation, false);
     }
 
-    // Used to initialize the "largest" consistent cut of a computation.
-//    public ConsistentCut(ArrayList<ArrayList<Event>> events) {
-//        this.events = events;
-//    }
+    // adds the specified event to "events", as well as any additional events necessary to keep it consistent
+    public void addEvent(Event event){
+        events.get(event.pid).add(event);
+        this.makeConsistentForward();
+    }
 
+    // removes specified event from "events", as well as removing any events necessary to keep it consistent
+    public void removeEvent(Event event){
+        events.get(event.pid).remove(event);
+        this.makeConsistentBackward();
+    }
+
+    // adds necessary events to make the cut consistent
+    private void makeConsistentForward(){
+        if (this.isConsistent()){
+            return;
+        }
+        else{
+            Event missingSender = findMissingSender();
+            for (int i = this.events.get(missingSender.pid).size(); i <= missingSender.eid; i++){
+                events.get(missingSender.pid).add(computation.events.get(missingSender.pid).get(i));
+            }
+            this.makeConsistentForward();
+        }
+    }
+
+    // removes necessary events to make the cut consistent
+    private void makeConsistentBackward(){
+        if (this.isConsistent()) {
+            return;
+        }
+        else{
+            Event extraRecipient = findExtraRecipient();
+            for (int i = this.events.get(extraRecipient.pid).size()-1; i >= extraRecipient.eid; i--){
+                events.get(extraRecipient.pid).remove(i);
+            }
+            this.makeConsistentBackward();
+        }
+    }
+
+    // checks if consistent
+    private boolean isConsistent(){
+        return findMissingSender() == null;
+    }
+
+    // returns the send event that is missing in order to make the cut consistent
+    private Event findMissingSender(){
+        for (Map.Entry<Event, Event> entry : computation.messages.entrySet()){
+            if (!this.includes(entry.getKey()) && this.includes(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    // returns the excess receive event (that should be removed) in order to make the cut consistent
+    private Event findExtraRecipient(){
+        for (Map.Entry<Event, Event> entry : computation.messages.entrySet()){
+            if (!this.includes(entry.getKey()) && this.includes(entry.getValue())) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -49,20 +110,17 @@ public class ConsistentCut {
             if (events.get(i).size() != rhs.events.get(i).size()) {
                 return false;
             }
-
             for (int j = 0; j < events.get(i).size(); ++j) {
                 if (!events.get(i).get(j).equals(rhs.events.get(i).get(j))) {
                     return false;
                 }
             }
         }
-
         return true;
     }
 
     @Override
     public int hashCode() {
-        // TODO: need to investigate this, there will probably be a lot of collisions if we use this hash method
         return getNumberOfEvents();
     }
 
@@ -84,6 +142,18 @@ public class ConsistentCut {
             result += events.get(i).size();
         }
         return result;
+    }
+
+    public int getNumberOfEventsInProcess(int pid){
+        return events.get(pid).size();
+    }
+
+    public int getNumberOfProcesses() {
+        return events.size();
+    }
+
+    public Event getEvent(int pid, int eid){
+        return events.get(pid).get(eid);
     }
 
     public boolean isIncludedIn(ConsistentCut rhs) {
@@ -116,24 +186,10 @@ public class ConsistentCut {
     public boolean includes(Event event){
         for (int i = 0; i < events.size(); i++){
             for (int j = 0; j < events.get(i).size(); j++){
-                if (event.identifier.equals(events.get(i).get(j).identifier))
+                if (event.equals(events.get(i).get(j)))
                     return true;
             }
         }
         return false;
     }
-
-    /*Comparator for sorting the ConsistentCut by consistent cut size (i.e. number of events)*/
-    public static Comparator<ConsistentCut> ConsistentCutSizeComparator = new Comparator<ConsistentCut>() {
-
-        public int compare(ConsistentCut c1, ConsistentCut c2) {
-            int c1Size = c1.getNumberOfEvents();
-            int c2Size = c2.getNumberOfEvents();
-
-            // ascending order
-            return c1Size - c2Size;
-        }};
-
-
-
 }

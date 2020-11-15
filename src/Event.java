@@ -1,14 +1,12 @@
 
 public class Event {
-    public String identifier; // an identifier for each Event. Should be global unique
-    public int pid;
+    public final int pid;
+    public final int eid; // an identifier for each Event. Should be global unique
 
-
-    public Event(String identifier, int pid) {
-        this.identifier = identifier;
+    public Event(int pid, int eid) {
         this.pid = pid;
+        this.eid = eid;
     }
-
 
     @Override
     public boolean equals(Object obj) {
@@ -22,16 +20,16 @@ public class Event {
 
         Event rhs = (Event) obj;
 
-        return this.identifier.equals(rhs.identifier) && this.pid == rhs.pid;
+        return this.eid == rhs.eid && this.pid == rhs.pid;
     }
 
     @Override
     public int hashCode() {
-        return identifier.hashCode();
+        return pid + eid;
     }
 
     @Override
     public String toString() {
-        return "(" + pid + ", " + identifier + ")";
+        return "(" + pid + ", " + eid + ")";
     }
 }

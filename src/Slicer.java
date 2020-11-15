@@ -18,16 +18,16 @@ public class Slicer {
         // type ConsistentCut to quickly "aggregate" all e's that produces the same J(e)'s into the same entry
         // under their (same) J(e))
         Map<ConsistentCut, Set<Event>> equivalentClasses = new HashMap<>();
-        for (int i = 0; i < W.events.size(); ++i) {
-            for (int j = V.events.get(i).size(); j < W.events.get(i).size(); ++j) {
+        for (int pid = 0; pid < W.getNumberOfProcesses(); ++pid) {
+            for (int eid = V.getNumberOfEventsInProcess(pid); eid < W.getNumberOfEventsInProcess(pid); ++eid) {
                 // 3.1. compute the "smallest" consistent cut J(e) in "computation" such that predicate(J(e)) && e \in J(e)
-                ConsistentCut JOfE = smallestConsistentCutIncludingEvent(computation, predicate, i, j);
+                ConsistentCut JOfE = smallestConsistentCutIncludingEvent(computation, predicate, pid, eid);
                 Set<Event> equivalentClass = equivalentClasses.getOrDefault(JOfE, new HashSet<>());
-                equivalentClass.add(W.events.get(i).get(j));
+                equivalentClass.add(W.getEvent(pid, eid));
                 equivalentClasses.put(JOfE, equivalentClass);
             }
         }
-        System.out.println("# of equivalent classes = " + equivalentClasses.size());
+//        System.out.println("# of equivalent classes = " + equivalentClasses.size());
 
         // 4. Construct nodes and a partial oder upon those nodes according to set inclusion
         // on their corresponding J(e).
@@ -67,8 +67,7 @@ public class Slicer {
 
     // Helper method 1: find the minimal consistent cut in "computation" that satisfies "predicate"
     static ConsistentCut smallestConsistentCut(Computation computation, Predicate predicate) {
-        ConsistentCut G = new ConsistentCut(computation.events.size(), computation);
-
+        ConsistentCut G = new ConsistentCut(computation, true);
 
         return smallestConsistentCutFromG(computation, predicate, G);
     }
@@ -81,11 +80,11 @@ public class Slicer {
         while (!predicate.predicate.apply(G)) {
             int forbiddenPID = predicate.reverseForbiddenState.apply(G);
             // check whether all events in "computation" from this process have been included in G
-            if (G.events.get(forbiddenPID).size() == 0) {
+            if (G.getNumberOfEventsInProcess(forbiddenPID) == 0){
                 return null;
             } else {
-                int numberOfEventsInGForProcessForbiddenPID = G.events.get(forbiddenPID).size();
-                G.events.get(forbiddenPID).remove(numberOfEventsInGForProcessForbiddenPID - 1);
+                Event eventToRemove = G.getEvent(forbiddenPID, G.getNumberOfEventsInProcess(forbiddenPID)-1);
+                G.removeEvent(eventToRemove);
             }
         }
         return G;
@@ -93,12 +92,11 @@ public class Slicer {
 
     // Helper method 3: find the minimal consistent cut in "computation" that satisfies "predicate" and also include "e"
     static ConsistentCut smallestConsistentCutIncludingEvent(Computation computation, Predicate predicate, int pid, int eventIdxInPID) {
-        int numOfProcesses = computation.getNumberOfProcesses();
-        ConsistentCut G = new ConsistentCut(numOfProcesses, computation);
-        // populate G with all events in pid until (and including) the desired event index
+        ConsistentCut G = new ConsistentCut(computation, true);
+        // populate G with the smallest consistent cut that includes the desired event
         for (int eventId = 0; eventId <= eventIdxInPID; ++eventId) {
             Event eventToAdd = computation.events.get(pid).get(eventId);
-            G.events.get(pid).add(eventToAdd);
+            G.addEvent(eventToAdd);
         }
 
         return smallestConsistentCutFromG(computation, predicate, G);
@@ -109,12 +107,12 @@ public class Slicer {
         while (!predicate.predicate.apply(g)) {
             int forbiddenPID = predicate.findForbiddenState.apply(g);
             // check whether all events in "computation" from this process have been included in G
-            if (g.events.get(forbiddenPID).size() == computation.events.get(forbiddenPID).size()) {
+            if (g.getNumberOfEventsInProcess(forbiddenPID) == computation.events.get(forbiddenPID).size()) {
                 return null;
             } else {
-                int numberOfEventsInGInProcessForbiddenPID = g.events.get(forbiddenPID).size();
+                int numberOfEventsInGInProcessForbiddenPID = g.getNumberOfEventsInProcess(forbiddenPID);
                 Event nextEvent = computation.events.get(forbiddenPID).get(numberOfEventsInGInProcessForbiddenPID);
-                g.events.get(forbiddenPID).add(nextEvent);
+                g.addEvent(nextEvent);
             }
         }
         return g;

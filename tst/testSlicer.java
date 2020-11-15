@@ -1,18 +1,12 @@
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 class testSlicer {
-
-//    Computation computation;
-//    Predicate predicate;
-
-//    public testSlicer(Computation computation, Predicate predicate){
-//        this.computation = computation;
-//        this.predicate = predicate;
-//    }
 
     private static boolean channelsEmptyPredicate(ConsistentCut cut){
         // function will return true if all channels are empty (no messages in transit)
@@ -73,16 +67,16 @@ class testSlicer {
         ArrayList<ArrayList<Event>> events = new ArrayList<>();
 
         ArrayList<Event> p0 = new ArrayList();
-        p0.add(new Event("e1", 0));
-        p0.add(new Event("e2", 0));
+        p0.add(new Event(0, 0));
+        p0.add(new Event(0, 1));
 
         ArrayList<Event> p1 = new ArrayList<>();
-        p1.add(new Event("f1", 1));
-        p1.add(new Event("f2", 1));
+        p1.add(new Event(1, 0));
+        p1.add(new Event(1, 1));
 
         ArrayList<Event> p2 = new ArrayList<>();
-        p2.add(new Event("g1", 2));
-        p2.add(new Event("g2", 2));
+        p2.add(new Event(2, 0));
+        p2.add(new Event(2, 1));
 
         events.add(p0);
         events.add(p1);
@@ -90,8 +84,8 @@ class testSlicer {
 
         Map<Event, Event> messages = new HashMap<>();
 
-        messages.put(new Event("e1", 0), new Event("f1", 1));
-        messages.put(new Event("f2", 1), new Event("g2", 2));
+        messages.put(new Event(0, 0), new Event(1, 0));
+        messages.put(new Event(1, 1), new Event(2, 1));
 
         // create the computation
         Computation computation = new Computation(events, messages);
@@ -101,7 +95,12 @@ class testSlicer {
 
         Slice slice = Slicer.slicer(computation, predicate);
 
-        System.out.println(slice);
+        assertEquals("", slice.V.toString());
+        assertEquals("[[(2, 0)], [(0, 0), (1, 0)], [(0, 1)], [(1, 1), (2, 1)]]", Arrays.toString(slice.nodes));
+        assertEquals("[true false false true ]\n" +
+                "[false true true true ]\n" +
+                "[false false true false ]\n" +
+                "[false false false true ]\n", Slice.incidenceMatrixString(slice.incidenceMatrix));
     }
 }
 

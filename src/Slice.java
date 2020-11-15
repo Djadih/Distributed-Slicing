@@ -1,7 +1,4 @@
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.function.Function;
 
 
 public class Slice {
@@ -12,7 +9,6 @@ public class Slice {
     Node[] nodes; // each node in "nodes" contains a set of Events in "computation". "nodes" form a partition of a subset of events in "computation". Textbook refers to this as F
     boolean[][] incidenceMatrix; // partial order on "nodes". incidenceMatrix[i][j] = True iff the J(e for any e in nodes[i]) \includedIn J(e for any e in nodes[j]). Textbook refers to this as ->_B
 
-
     public Slice(Computation computation, Predicate predicate, ConsistentCut V, Node[] nodes, boolean[][] incidenceMatrix) {
         this.computation = computation;
         this.predicate = predicate;
@@ -21,14 +17,28 @@ public class Slice {
         this.incidenceMatrix = incidenceMatrix;
     }
 
+    public static String incidenceMatrixString(boolean[][] incidenceMatrix){
+        StringBuilder sb = new StringBuilder();
+        for (boolean[] row : incidenceMatrix){
+            sb.append("[");
+            for (boolean b : row){
+                sb.append(b + " ");
+            }
+            sb.append("]\n");
+        }
+
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
-        return "Slice{" +
+
+        return "Slice{\n" +
                 "computation=" + computation +
-                ", predicate=" + predicate +
-                ", V=" + V +
-                ", nodes=" + Arrays.toString(nodes) +
-                ", incidenceMatrix=" + Arrays.toString(incidenceMatrix) +
+                "\npredicate=" + predicate +
+                "\nV=" + V +
+                "\nnodes=" + Arrays.toString(nodes) +
+                "\nincidenceMatrix=\n" + incidenceMatrixString(incidenceMatrix) +
                 '}';
     }
 }
