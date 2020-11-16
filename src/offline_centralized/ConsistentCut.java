@@ -1,3 +1,5 @@
+package offline_centralized;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -104,7 +106,7 @@ public class ConsistentCut {
         if (events.size() != rhs.events.size()) {
             return false;
         }
-        // check this consistent cut contains the same Event at each and all processes as rhs consistent cut.
+        // check this consistent cut contains the same offline_centralized.Event at each and all processes as rhs consistent cut.
         int N = events.size();
         for (int i = 0; i < N; ++i) {
             if (events.get(i).size() != rhs.events.get(i).size()) {

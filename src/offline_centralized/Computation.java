@@ -1,6 +1,7 @@
+package offline_centralized;
+
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.Function;
 
 public class Computation {
     final ArrayList<ArrayList<Event>> events; // events[0] = the array of events in process 0, and so on

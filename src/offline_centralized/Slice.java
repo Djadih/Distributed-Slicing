@@ -1,3 +1,5 @@
+package offline_centralized;
+
 import java.util.Arrays;
 
 
@@ -33,7 +35,7 @@ public class Slice {
     @Override
     public String toString() {
 
-        return "Slice{\n" +
+        return "offline_centralized.Slice{\n" +
                 "computation=" + computation +
                 "\npredicate=" + predicate +
                 "\nV=" + V +

@@ -1,11 +1,14 @@
+package online_distributed;
 
 public class Event {
     public final int pid;
-    public final int eid; // an identifier for each Event. Should be global unique
+    public final int eid; // an identifier for each offline_centralized.Event. Should be global unique
+    public final VectorClock vectorClock;
 
-    public Event(int pid, int eid) {
+    public Event(int pid, int eid, VectorClock vectorClock) {
         this.pid = pid;
         this.eid = eid;
+        this.vectorClock = vectorClock;
     }
 
     @Override

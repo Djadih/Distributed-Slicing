@@ -1,3 +1,5 @@
+package offline_centralized;
+
 import java.util.function.Function;
 
 public class Predicate {

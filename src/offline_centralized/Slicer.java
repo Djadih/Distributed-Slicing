@@ -1,5 +1,6 @@
+package offline_centralized;
+
 import java.util.*;
-import java.util.function.Function;
 
 public class Slicer {
 
@@ -14,8 +15,8 @@ public class Slicer {
         ConsistentCut W = largestConsistentCut(computation, predicate);
 
         // 3. For each event e in W-V, find the least consistent cut that satisfies B and includes e.
-        // (note: since we override equals&hashCode for ConsistentCut, we can use a Map whose key is of
-        // type ConsistentCut to quickly "aggregate" all e's that produces the same J(e)'s into the same entry
+        // (note: since we override equals&hashCode for offline_centralized.ConsistentCut, we can use a Map whose key is of
+        // type offline_centralized.ConsistentCut to quickly "aggregate" all e's that produces the same J(e)'s into the same entry
         // under their (same) J(e))
         Map<ConsistentCut, Set<Event>> equivalentClasses = new HashMap<>();
         for (int pid = 0; pid < W.getNumberOfProcesses(); ++pid) {

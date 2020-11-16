@@ -1,3 +1,5 @@
+package offline_centralized;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,7 +42,7 @@ class testSlicer {
                 }
             }
         }
-        throw new IllegalArgumentException("Predicate was not false");
+        throw new IllegalArgumentException("offline_centralized.Predicate was not false");
     }
 
     private static Integer findForbiddenStateInReverse(ConsistentCut cut){
@@ -59,7 +61,7 @@ class testSlicer {
                 }
             }
         }
-        throw new IllegalArgumentException("Predicate was not false");
+        throw new IllegalArgumentException("offline_centralized.Predicate was not false");
     }
 
     @Test
