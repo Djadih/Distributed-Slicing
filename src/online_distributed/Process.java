@@ -19,7 +19,7 @@ public class Process {
         this.pid = pid;
         localEvents = new ArrayList<>();
         waitingTokens = new ArrayList<>();
-        waitingTokens.add(new Token(pid,null, new VectorClock(N), new VectorClock(N), new LocalState[N],false, new Event(pid, 0, null, null)));
+        waitingTokens.add(new Token(N, pid)); // add a token to each process that awaits this process' first event
     }
 
     // handler upon receiving an new event (time-stamped) "e"
@@ -86,7 +86,7 @@ public class Process {
     public void receiveToken(Token t) {
         if (t.eval && t.pid == pid) {
             // my token, B true
-            scheduler.output(t.event, t.gCut);
+            scheduler.output(t.event, new VectorClock(t.gCut));
             t.target = new Event(pid, t.gCut.get(pid) + 1, null, null);
             waitingTokens.add(t);
         } else {
@@ -117,6 +117,6 @@ public class Process {
 
     private void transferToken(Token t, int to) {
         waitingTokens.remove(t);
-        scheduler.transferToken(t, pid, to);
+        scheduler.transferToken(t, to);
     }
 }

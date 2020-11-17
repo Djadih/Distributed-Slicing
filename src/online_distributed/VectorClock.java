@@ -16,6 +16,14 @@ public class VectorClock {
         }
     }
 
+    public VectorClock(VectorClock rhs) {
+        this(rhs.vectorClock.length);
+        for (int i = 0; i < this.vectorClock.length; ++i) {
+            this.vectorClock[i] = rhs.vectorClock[i];
+        }
+
+    }
+
     public Integer get(int index) {
         return vectorClock[index];
     }
@@ -57,7 +65,7 @@ public class VectorClock {
         }
 
         for (int i = 0; i < vectorClock.length; ++i) {
-            if (vectorClock[i] != rhs.vectorClock[i]) {
+            if (vectorClock[i].equals(rhs.vectorClock[i])) {
                 return false;
             }
         }
