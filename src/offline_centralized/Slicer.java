@@ -43,7 +43,7 @@ public class Slicer {
         int m = equivalentClasses.size();
 
         Node[] nodes = new Node[m];
-        boolean[][] incidenceMatric = new boolean[m][m];
+        boolean[][] incidenceMatrix = new boolean[m][m];
 
         for (int i = 0; i < m; ++i) {
             // each node is nothing but a set of equivalent events
@@ -56,12 +56,12 @@ public class Slicer {
                 ConsistentCut j1 = arrayOfPairs.get(i).getKey();
                 ConsistentCut j2 = arrayOfPairs.get(j).getKey();
                 if (j1.isIncludedIn(j2)) {
-                    incidenceMatric[i][j] = true;
+                    incidenceMatrix[i][j] = true;
                 }
             }
         }
 
-        return new Slice(computation, predicate, V, nodes, incidenceMatric);
+        return new Slice(computation, predicate, V, nodes, incidenceMatrix);
     }
 
 

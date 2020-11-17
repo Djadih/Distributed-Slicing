@@ -3,30 +3,31 @@ package online_distributed;
 import java.util.ArrayList;
 
 public class Process {
-    Scheduler scheduler;
     Predicate predicate; // a regular predicate
-
+    Scheduler scheduler;
 
     final int N;
     final int pid;
     ArrayList<Event> localEvents; // local events in P_i so far. New events will keep coming.
-    VectorClock vectorClock; // TODO: think about how to update vectorClock in this process (it should be updated after we execute an event, either it's an internal event or an external event)
     ArrayList<Token> waitingTokens; // tokens that are waiting at this process
 
-    public Process(int N, int pid) {
+    public Process(int N, int pid, Predicate predicate, Scheduler scheduler) {
+        this.predicate = predicate;
+        this.scheduler = scheduler;
+
         this.N = N;
         this.pid = pid;
         localEvents = new ArrayList<>();
-        vectorClock = new VectorClock();
         waitingTokens = new ArrayList<>();
-        waitingTokens.add(new Token(pid,null, new VectorClock(N), new VectorClock(N), false, null));
+        waitingTokens.add(new Token(pid,null, new VectorClock(N), new VectorClock(N), new LocalState[N],false, new Event(pid, 0, null, null)));
     }
 
-    // handler upon receiving an new event "e"
+    // handler upon receiving an new event (time-stamped) "e"
     public void receiveEvent(Event e) {
         localEvents.add(e);
 
-        for (Token waitingToken : waitingTokens) {
+        for (int i = 0; i < waitingTokens.size(); ++i) {
+            Token waitingToken = waitingTokens.get(i);
             if (waitingToken.target.equals(e)) {
                 addEventToToken(waitingToken, e);
                 processToken(waitingToken);
@@ -35,6 +36,7 @@ public class Process {
     }
 
     public void addEventToToken(Token t, Event e) {
+        t.gState[e.pid] = e.localState;
         t.gCut.set(e.pid,  e.eid);
         if (t.pid == pid) {
             // my token:update tokens' event pointer
@@ -48,8 +50,8 @@ public class Process {
         int k = findInconsistencyProcessNumber(t);
         if (k != -1) {
             /* find k : t.gcut[k] < t.depend[k] */
-            t.target = new Event(k, t.gCut.get(k) + 1, null); // vectorClock is (unknown and also) unused as far as t.target is concerned
-            scheduler.transferToken(t, pid, k); // send t to S_k
+            t.target = new Event(k, t.gCut.get(k) + 1, null, null); // vectorClock is (unknown and also) unused as far as t.target is concerned
+            transferToken(t, k); // send t to S_k
         } else {
             evaluateToken(t);
         }
@@ -68,15 +70,15 @@ public class Process {
     }
 
     public void evaluateToken(Token t) {
-        if (predicate.predicate.apply(t.gCut)) {
+        if (predicate.predicate.apply(t.gState)) {
             // B is true on cut given by t.gCut
             t.eval = true;
-            scheduler.transferToken(t, pid, t.pid); // send token back to its original owner
+            transferToken(t, t.pid); // send token back to its original owner
         } else {
             t.eval = false;
-            int k = predicate.findForbiddenState.apply(t.gCut); // P_k is the forbidden process
-            t.target = new Event(k, t.gCut.get(k) + 1, null);
-            scheduler.transferToken(t, pid, k); // send token to S_k
+            int k = predicate.findForbiddenState.apply(t.gState); // P_k is the forbidden process
+            t.target = new Event(k, t.gCut.get(k) + 1, null, null);
+            transferToken(t, k); // send token to S_k
         }
     }
 
@@ -85,7 +87,7 @@ public class Process {
         if (t.eval && t.pid == pid) {
             // my token, B true
             scheduler.output(t.event, t.gCut);
-            t.target = new Event(pid, t.gCut.get(pid) + 1, null);
+            t.target = new Event(pid, t.gCut.get(pid) + 1, null, null);
             waitingTokens.add(t);
         } else {
             // either inconsistent cut, or predicate false
@@ -111,5 +113,10 @@ public class Process {
             }
         }
         return null;
+    }
+
+    private void transferToken(Token t, int to) {
+        waitingTokens.remove(t);
+        scheduler.transferToken(t, pid, to);
     }
 }

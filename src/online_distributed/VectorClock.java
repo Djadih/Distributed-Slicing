@@ -1,5 +1,7 @@
 package online_distributed;
 
+import java.util.Arrays;
+
 public class VectorClock {
     Integer[] vectorClock;
 
@@ -70,5 +72,16 @@ public class VectorClock {
             result += val;
         }
         return result;
+    }
+
+    public boolean isIncludedIn(VectorClock rhs) {
+        // this is included in rhs iff this.vectorClock[k] <= rhs.vectorClock[k], for all k
+        // Or, equivalently, the component-wise max of this.vectorClock and rhs.vectorClock is equal to rhs.vectorClock
+        return VectorClock.max(this, rhs).equals(rhs);
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(vectorClock);
     }
 }

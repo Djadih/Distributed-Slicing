@@ -4,11 +4,13 @@ public class Event {
     public final int pid;
     public final int eid; // an identifier for each offline_centralized.Event. Should be global unique
     public final VectorClock vectorClock;
+    public final LocalState localState;
 
-    public Event(int pid, int eid, VectorClock vectorClock) {
+    public Event(int pid, int eid, VectorClock vectorClock, LocalState localState) {
         this.pid = pid;
         this.eid = eid;
         this.vectorClock = vectorClock;
+        this.localState = localState;
     }
 
     @Override
