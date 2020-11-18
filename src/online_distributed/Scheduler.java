@@ -22,7 +22,6 @@ public class Scheduler {
         // gCut is the smallest consistent cut that satisfies B and include event "e"
         Set<Event> equivalentClass = equivalentClasses.getOrDefault(gCut, new HashSet<>());
         equivalentClass.add(e);
-//        equivalentClasses.remove(gCut);
         equivalentClasses.put(gCut, equivalentClass);
     }
 

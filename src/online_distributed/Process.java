@@ -26,13 +26,43 @@ public class Process {
     public void receiveEvent(Event e) {
         localEvents.add(e);
 
-        for (int i = 0; i < waitingTokens.size(); ++i) {
-            Token waitingToken = waitingTokens.get(i);
+        // iterate over each token in waitingTokens, but each iteration will potentially remove
+        // the token at that iteration, so this is a compromised (and "ugly") solution
+        ArrayList<Token> tmpt = new ArrayList<>();
+
+        while (waitingTokens.size() > 0) {
+            Token waitingToken = waitingTokens.get(0);
+
+//            for (Event localEvent : localEvents) {
+//                if (waitingToken.target.equals(localEvent)) {
+//                    addEventToToken(waitingToken, localEvent);
+//                    processToken(waitingToken); // this waitingToken will be removed in processToken(waitingToken)
+//                } else {
+//                    tmpt.add(waitingToken);
+//                    waitingTokens.remove(waitingToken);
+//                }
+//            }
+
             if (waitingToken.target.equals(e)) {
                 addEventToToken(waitingToken, e);
-                processToken(waitingToken);
+                processToken(waitingToken); // this waitingToken will be removed in processToken(waitingToken)
+            } else {
+                tmpt.add(waitingToken);
+                waitingTokens.remove(waitingToken);
             }
         }
+
+        waitingTokens = tmpt;
+
+//        for (int i = 0; i < waitingTokens.size(); ++i) {
+//            Token waitingToken = waitingTokens.get(i);
+//            if (waitingToken.target.equals(e)) {
+//                addEventToToken(waitingToken, e);
+//                processToken(waitingToken);
+//            }
+//        }
+
+
     }
 
     public void addEventToToken(Token t, Event e) {
@@ -88,22 +118,22 @@ public class Process {
             // my token, B true
             scheduler.output(t.event, new VectorClock(t.gCut));
             t.target = new Event(pid, t.gCut.get(pid) + 1, null, null);
-            waitingTokens.add(t);
-        } else {
-            // either inconsistent cut, or predicate false
+//            waitingTokens.add(t);
+        }
+//        else { // something that's different from the paper but we think it's correct
+            // either inconsistent cut, or predicate false, or can further process t for the new t.target
+            t.eval = false; // this is okay because t will be sent back to its parent immediately after it's been evaluated to true
             int newID = t.target.eid; // id of event that t requires
             Event f = findlocalEventwithID(newID);
             if (f != null) {
                 // required event has happened
                 addEventToToken(t, f);
                 // TODO: ask the author to verify this!
-                processToken(t);
-//                evaluateToken(t); This is what the paper said but we believe it is not correct. Instead, we think we should use processToken
+                processToken(t); // evaluateToken(t); This is what the paper said but we believe it is not correct. Instead, we think we should use processToken
             } else {
-                waitingTokens.add(t); //???
+                waitingTokens.add(t);
             }
-
-        }
+//        }
     }
 
     private Event findlocalEventwithID(int eid) {

@@ -28,6 +28,8 @@ public class testScheduler {
     public static Integer findForbiddenProcess(LocalState[] localStates) {
         if (localStates[0].val < 1) {
             return 0;
+        } else if (localStates[1].val == -100) {
+            return 1;
         } else if (localStates[2].val > 3) {
             return 2;
         } else {

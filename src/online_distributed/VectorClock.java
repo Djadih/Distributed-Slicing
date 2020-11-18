@@ -65,7 +65,7 @@ public class VectorClock {
         }
 
         for (int i = 0; i < vectorClock.length; ++i) {
-            if (vectorClock[i].equals(rhs.vectorClock[i])) {
+            if (!vectorClock[i].equals(rhs.vectorClock[i])) {
                 return false;
             }
         }
