@@ -16,8 +16,15 @@ public class ConsistentCut {
                 events.add(new ArrayList<>());
             }
         }
-        else{
-            this.events = computation.events;
+        else {
+            // deep copy computation.events (a 2D arraylist) to this.events
+            this.events = new ArrayList<>();
+            for (int i = 0; i < computation.getNumberOfProcesses(); ++i) {
+                this.events.add(new ArrayList<>());
+                for (int j = 0; j < computation.getNumberOfEventsInProcess(i); ++j) {
+                    this.events.get(i).add(new Event(i, j, new LocalState(computation.getEvent(i, j).localState.val)));
+                }
+            }
         }
         this.computation = computation;
     }

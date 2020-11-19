@@ -3,10 +3,18 @@ package offline_centralized;
 public class Event {
     public final int pid;
     public final int eid; // an identifier for each offline_centralized.Event. Should be global unique
+    public final LocalState localState;
 
     public Event(int pid, int eid) {
         this.pid = pid;
         this.eid = eid;
+        this.localState = null;
+    }
+
+    public Event(int pid, int eid, LocalState localState) {
+        this.pid = pid;
+        this.eid = eid;
+        this.localState = localState;
     }
 
     @Override

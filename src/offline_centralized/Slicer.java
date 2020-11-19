@@ -4,15 +4,21 @@ import java.util.*;
 
 public class Slicer {
 
-    static Slice slicer(Computation computation, Predicate predicate) {
+    static Slice slice(Computation computation, Predicate predicate) {
+        System.out.println("enter slice: computation = \n" +computation);
+
         // Precondition: predicate is a lattice-liner predicate on cuts of "computation"
 
         // 1. Compute the "smallest" consistent cut V in "computation" such that predicate(V).
         ConsistentCut V = smallestConsistentCut(computation, predicate);
 
+        System.out.println("Xiang 1: computation = \n" +computation);
+
 
         // 2. Compute the "largest" consistent cut W in "computation" such that predicate(W).
         ConsistentCut W = largestConsistentCut(computation, predicate);
+
+        System.out.println("Xiang 2: computation = \n" +computation);
 
         // 3. For each event e in W-V, find the least consistent cut that satisfies B and includes e.
         // (note: since we override equals&hashCode for offline_centralized.ConsistentCut, we can use a Map whose key is of
@@ -28,6 +34,8 @@ public class Slicer {
                 equivalentClasses.put(JOfE, equivalentClass);
             }
         }
+
+        System.out.println("Xiang 3: computation = \n" +computation);
 //        System.out.println("# of equivalent classes = " + equivalentClasses.size());
 
         // 4. Construct nodes and a partial oder upon those nodes according to set inclusion
@@ -38,6 +46,8 @@ public class Slicer {
         for (Map.Entry<ConsistentCut, Set<Event>> entry : equivalentClasses.entrySet()) {
             arrayOfPairs.add(entry);
         }
+
+        System.out.println("Xiang 4: computation = \n" +computation);
 
         // 4.1. fill in "nodes" and "incidenceMatrix"
         int m = equivalentClasses.size();
@@ -61,6 +71,8 @@ public class Slicer {
             }
         }
 
+
+        System.out.println("leaving slice: computation = \n" +computation);
         return new Slice(computation, predicate, V, nodes, incidenceMatrix);
     }
 
