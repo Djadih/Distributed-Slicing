@@ -95,7 +95,13 @@ class testSlicer {
         // create the predicate, need the predicate and efficientAdvancementFunction first
         Predicate predicate = new Predicate(testSlicer::channelsEmptyPredicate_test1, testSlicer::findForbiddenState_test1, testSlicer::findForbiddenStateInReverse_test1);
 
+        long startTime = System.nanoTime();
+
         Slice slice = Slicer.slice(computation, predicate);
+
+        long elapsedTime = System.nanoTime() - startTime;
+
+        double secondsElapsed = (double) elapsedTime / 1_000_000_000;
 
         assertEquals("", slice.V.toString());
         assertEquals("[[(2, 0)], [(0, 0), (1, 0)], [(0, 1)], [(1, 1), (2, 1)]]", Arrays.toString(slice.nodes));
@@ -103,6 +109,10 @@ class testSlicer {
                 "[false true true true ]\n" +
                 "[false false true false ]\n" +
                 "[false false false true ]\n", Slice.incidenceMatrixString(slice.incidenceMatrix));
+
+        System.out.println("Elapsed time: " + (secondsElapsed) + "seconds");
+
+
     }
 
 
