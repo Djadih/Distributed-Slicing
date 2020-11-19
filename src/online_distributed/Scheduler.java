@@ -6,8 +6,11 @@ public class Scheduler {
     ArrayList<Process> processes;
     Map<VectorClock, Set<Event>> equivalentClasses;
 
+    int messageCount;
+
     public Scheduler() {
         this.equivalentClasses = new HashMap<>();
+        this.messageCount = 0;
     }
 
     public void addProcesses(ArrayList<Process> processes) {
@@ -16,6 +19,7 @@ public class Scheduler {
 
     void transferToken(Token t, int to) {
         processes.get(to).receiveToken(t);
+        messageCount++;
     }
 
     void output(Event e, VectorClock gCut) {
