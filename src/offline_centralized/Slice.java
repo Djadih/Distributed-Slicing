@@ -39,7 +39,7 @@ public class Slice {
                 "computation=" + computation +
                 "\npredicate=" + predicate +
                 "\nV=" + V +
-                "\nnodes=" + Arrays.toString(nodes) +
+                "\nequivalence classes=" + Arrays.toString(nodes) +
                 "\nincidenceMatrix=\n" + incidenceMatrixString(incidenceMatrix) +
                 '}';
     }

@@ -38,75 +38,44 @@ public class testScheduler {
     }
 
 
-        @Test
-        public void testScheduler () {
-        Predicate predicate = new Predicate(testScheduler::customStatePredicate, testScheduler::findForbiddenProcess);
-        Scheduler scheduler = new Scheduler();
+    @Test
+    public void testScheduler () {
+    Predicate predicate = new Predicate(testScheduler::customStatePredicate, testScheduler::findForbiddenProcess);
+    Scheduler scheduler = new Scheduler();
 
-        ArrayList<Process> processes = new ArrayList<>();
-        int numberOfProcesses = 3;
-        for (int pid = 0; pid < numberOfProcesses; ++pid) {
-            processes.add(new Process(numberOfProcesses, pid, predicate, scheduler));
-        }
-
-        scheduler.addProcesses(processes);
-
-        long startTime = System.nanoTime();
-
-        // one particular order in which events can be generated, among many other orders.
-        scheduler.enqueueEvent(new Event(0, 1, new VectorClock(new Integer[]{1, 0, 0}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(1, 1, new VectorClock(new Integer[]{0, 1, 0}), new LocalState(0)));
-        scheduler.enqueueEvent(new Event(2, 1, new VectorClock(new Integer[]{0, 0, 1}), new LocalState(4)));
-        scheduler.enqueueEvent(new Event(0, 2, new VectorClock(new Integer[]{2, 0, 0}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(1, 2, new VectorClock(new Integer[]{0, 2, 0}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(2, 2, new VectorClock(new Integer[]{0, 2, 2}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(0, 3, new VectorClock(new Integer[]{3, 0, 0}), new LocalState(-1)));
-        scheduler.enqueueEvent(new Event(1, 3, new VectorClock(new Integer[]{0, 3, 3}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(2, 3, new VectorClock(new Integer[]{0, 2, 3}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(0, 4, new VectorClock(new Integer[]{4, 0, 0}), new LocalState(0)));
-        scheduler.enqueueEvent(new Event(1, 4, new VectorClock(new Integer[]{3, 4, 3}), new LocalState(3)));
-        scheduler.enqueueEvent(new Event(2, 4, new VectorClock(new Integer[]{0, 2, 4}), new LocalState(4)));
-
-        Slice slice = scheduler.getMeTheSlice();
-        System.out.println(slice);
-
-        long elapsedTime = System.nanoTime() - startTime;
-
-        double secondsElapsed = (double) elapsedTime / 1_000_000_000;;
-
-        System.out.println("Elapsed time: " + (secondsElapsed) + " seconds");
-        System.out.println("Total number of messages exchanged: " + Integer.toString(scheduler.messageCount));
+    ArrayList<Process> processes = new ArrayList<>();
+    int numberOfProcesses = 3;
+    for (int pid = 0; pid < numberOfProcesses; ++pid) {
+        processes.add(new Process(numberOfProcesses, pid, predicate, scheduler));
     }
 
-    public static void runForProfiler(String[] args){
-        Predicate predicate = new Predicate(testScheduler::customStatePredicate, testScheduler::findForbiddenProcess);
-        Scheduler scheduler = new Scheduler();
+    scheduler.addProcesses(processes);
 
-        ArrayList<Process> processes = new ArrayList<>();
-        int numberOfProcesses = 3;
-        for (int pid = 0; pid < numberOfProcesses; ++pid) {
-            processes.add(new Process(numberOfProcesses, pid, predicate, scheduler));
-        }
+    // one particular order in which events can be generated, among many other orders.
+    scheduler.enqueueEvent(new Event(0, 1, new VectorClock(new Integer[]{1, 0, 0}), new LocalState(1)));
+    scheduler.enqueueEvent(new Event(1, 1, new VectorClock(new Integer[]{0, 1, 0}), new LocalState(0)));
+    scheduler.enqueueEvent(new Event(2, 1, new VectorClock(new Integer[]{0, 0, 1}), new LocalState(4)));
+    scheduler.enqueueEvent(new Event(0, 2, new VectorClock(new Integer[]{2, 0, 0}), new LocalState(2)));
+    scheduler.enqueueEvent(new Event(1, 2, new VectorClock(new Integer[]{0, 2, 0}), new LocalState(2)));
+    scheduler.enqueueEvent(new Event(2, 2, new VectorClock(new Integer[]{0, 2, 2}), new LocalState(1)));
+    scheduler.enqueueEvent(new Event(0, 3, new VectorClock(new Integer[]{3, 0, 0}), new LocalState(-1)));
+    scheduler.enqueueEvent(new Event(1, 3, new VectorClock(new Integer[]{0, 3, 3}), new LocalState(1)));
+    scheduler.enqueueEvent(new Event(2, 3, new VectorClock(new Integer[]{0, 2, 3}), new LocalState(2)));
+    scheduler.enqueueEvent(new Event(0, 4, new VectorClock(new Integer[]{4, 0, 0}), new LocalState(0)));
+    scheduler.enqueueEvent(new Event(1, 4, new VectorClock(new Integer[]{3, 4, 3}), new LocalState(3)));
+    scheduler.enqueueEvent(new Event(2, 4, new VectorClock(new Integer[]{0, 2, 4}), new LocalState(4)));
 
-        scheduler.addProcesses(processes);
+    long startTime = System.nanoTime();
 
-        long startTime = System.nanoTime();
+    // issues command to scheduler to combine all the J(e)s and return the slice
+    Slice slice = scheduler.getMeTheSlice();
+    System.out.println(slice);
 
-        // one particular order in which events can be generated, among many other orders.
-        scheduler.enqueueEvent(new Event(0, 1, new VectorClock(new Integer[]{1, 0, 0}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(1, 1, new VectorClock(new Integer[]{0, 1, 0}), new LocalState(0)));
-        scheduler.enqueueEvent(new Event(2, 1, new VectorClock(new Integer[]{0, 0, 1}), new LocalState(4)));
-        scheduler.enqueueEvent(new Event(0, 2, new VectorClock(new Integer[]{2, 0, 0}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(1, 2, new VectorClock(new Integer[]{0, 2, 0}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(2, 2, new VectorClock(new Integer[]{0, 2, 2}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(0, 3, new VectorClock(new Integer[]{3, 0, 0}), new LocalState(-1)));
-        scheduler.enqueueEvent(new Event(1, 3, new VectorClock(new Integer[]{0, 3, 3}), new LocalState(1)));
-        scheduler.enqueueEvent(new Event(2, 3, new VectorClock(new Integer[]{0, 2, 3}), new LocalState(2)));
-        scheduler.enqueueEvent(new Event(0, 4, new VectorClock(new Integer[]{4, 0, 0}), new LocalState(0)));
-        scheduler.enqueueEvent(new Event(1, 4, new VectorClock(new Integer[]{3, 4, 3}), new LocalState(3)));
-        scheduler.enqueueEvent(new Event(2, 4, new VectorClock(new Integer[]{0, 2, 4}), new LocalState(4)));
+    long elapsedTime = System.nanoTime() - startTime;
 
-        Slice slice = scheduler.getMeTheSlice();
+    double secondsElapsed = (double) elapsedTime / 1_000_000_000;;
 
-    }
+    System.out.println("Elapsed time: " + (secondsElapsed) + " seconds");
+    System.out.println("Total number of messages exchanged: " + Integer.toString(scheduler.messageCount));
+}
 }

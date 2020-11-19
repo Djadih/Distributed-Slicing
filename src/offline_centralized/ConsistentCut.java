@@ -22,7 +22,13 @@ public class ConsistentCut {
             for (int i = 0; i < computation.getNumberOfProcesses(); ++i) {
                 this.events.add(new ArrayList<>());
                 for (int j = 0; j < computation.getNumberOfEventsInProcess(i); ++j) {
-                    this.events.get(i).add(new Event(i, j, new LocalState(computation.getEvent(i, j).localState.val)));
+                    LocalState state = computation.getEvent(i, j).localState;
+                    if (state == null){
+                        this.events.get(i).add(new Event(i, j, null));
+                    }
+                    else {
+                        this.events.get(i).add(new Event(i, j, new LocalState(computation.getEvent(i, j).localState.val)));
+                    }
                 }
             }
         }
@@ -136,6 +142,7 @@ public class ConsistentCut {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         for (int i = 0; i < events.size(); ++i) {
             for (int j = 0; j < events.get(i).size(); ++j) {
                 sb.append(events.get(i).get(j) + (j==events.get(i).size() -1 ? "\n" : " -> "));

@@ -32,9 +32,8 @@ public class Slice {
 
     @Override
     public String toString() {
-
         return "online_distributed.Slice{\n" +
-                "\nnodes=" + Arrays.toString(nodes) +
+                "\ncuts=" + Arrays.toString(nodes) +
                 "\nincidenceMatrix=\n" + incidenceMatrixString(incidenceMatrix) +
                 '}';
     }

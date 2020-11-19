@@ -60,10 +60,4 @@ public class Scheduler {
         return new Slice(nodes, incidenceMatrix);
     }
 
-
-
-
-
-
-
 }
