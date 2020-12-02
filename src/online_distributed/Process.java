@@ -129,7 +129,8 @@ public class Process {
                 // required event has happened
                 addEventToToken(t, f);
                 // TODO: ask the author to verify this!
-                processToken(t); // evaluateToken(t); This is what the paper said but we believe it is not correct. Instead, we think we should use processToken
+                processToken(t);    // The paper said to use evaluateToken(t) here but we believe it is not correct.
+                                    // We think we should use processToken
             } else {
                 waitingTokens.add(t);
             }

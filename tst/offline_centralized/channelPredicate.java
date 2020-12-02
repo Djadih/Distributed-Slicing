@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-class testSlicer {
+class channelPredicate {
 
     private static boolean channelsEmptyPredicate_test1(ConsistentCut cut) {
         // function will return true if all channels are empty (no messages in transit)
@@ -93,7 +93,7 @@ class testSlicer {
         Computation computation = new Computation(events, messages);
 
         // create the predicate, need the predicate and efficientAdvancementFunction first
-        Predicate predicate = new Predicate(testSlicer::channelsEmptyPredicate_test1, testSlicer::findForbiddenState_test1, testSlicer::findForbiddenStateInReverse_test1);
+        Predicate predicate = new Predicate(channelPredicate::channelsEmptyPredicate_test1, channelPredicate::findForbiddenState_test1, channelPredicate::findForbiddenStateInReverse_test1);
 
         long startTime = System.nanoTime();
 
@@ -103,12 +103,16 @@ class testSlicer {
 
         double secondsElapsed = (double) elapsedTime / 1_000_000_000;
 
-        assertEquals("", slice.V.toString());
+        assertEquals("\n", slice.V.toString());
         assertEquals("[[(2, 0)], [(0, 0), (1, 0)], [(0, 1)], [(1, 1), (2, 1)]]", Arrays.toString(slice.nodes));
         assertEquals("[true false false true ]\n" +
                 "[false true true true ]\n" +
                 "[false false true false ]\n" +
                 "[false false false true ]\n", Slice.incidenceMatrixString(slice.incidenceMatrix));
+
+        System.out.println("V: " + slice.V.toString());
+        System.out.println("Slice: " + Arrays.toString(slice.nodes));
+        System.out.println("Slice incidence matrix:\n" + Slice.incidenceMatrixString(slice.incidenceMatrix));
 
         System.out.println("Elapsed time: " + (secondsElapsed) + " seconds");
 

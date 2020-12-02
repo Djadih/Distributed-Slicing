@@ -3,7 +3,6 @@ package online_distributed;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.function.BinaryOperator;
 
 /* TODO: 1. two problematic observations:
             - when u is enqueued into the system, the token whose event field = (0, 1) (event "a") that has a target field of (2, 1) is not updated
@@ -18,7 +17,7 @@ import java.util.function.BinaryOperator;
          3. If those two observations are confirmed, do ....
          4. Otherwise, do ....
 */
-public class testScheduler {
+public class online_state {
 
     public static Boolean customStatePredicate(LocalState[] localStates) {
 
@@ -40,7 +39,7 @@ public class testScheduler {
 
     @Test
     public void testScheduler () {
-    Predicate predicate = new Predicate(testScheduler::customStatePredicate, testScheduler::findForbiddenProcess);
+    Predicate predicate = new Predicate(online_state::customStatePredicate, online_state::findForbiddenProcess);
     Scheduler scheduler = new Scheduler();
 
     ArrayList<Process> processes = new ArrayList<>();
